@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calcolatore LIME</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f5f5f3;
+      color: #1a1a18;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #e2e0d8;
+      padding: 2rem;
+      width: 100%;
+      max-width: 760px;
+    }
+
+    h1 {
+      font-size: 20px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #6b6b67;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Tabella */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    th {
+      text-align: left;
+      font-size: 12px;
+      font-weight: 500;
+      color: #6b6b67;
+      padding: 0 8px 8px;
+    }
+
+    td {
+      padding: 6px 8px;
+      border-top: 1px solid #ebebeb;
+      vertical-align: middle;
+    }
+
+    input[type="text"] {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 5px 8px;
+      font-size: 14px;
+      width: 180px;
+      outline: none;
+      font-family: inherit;
+    }
+
+    input[type="number"] {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 5px 6px;
+      font-size: 14px;
+      width: 68px;
+      text-align: center;
+      outline: none;
+      font-family: inherit;
+    }
+
+    input:focus {
+      border-color: #378add;
+      box-shadow: 0 0 0 3px rgba(55,138,221,0.12);
+    }
+
+    /* Badge piano */
+    .plan-badge {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 9px;
+      border-radius: 6px;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    .b-base { background: #f1efe8; color: #5f5e5a; }
+    .b-plus { background: #e6f1fb; color: #185fa5; }
+    .b-ent  { background: #eaf3de; color: #3b6d11; }
+
+    /* Bottone rimuovi */
+    .btn-remove {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #aaa;
+      font-size: 18px;
+      line-height: 1;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+
+    .btn-remove:hover { background: #fdecea; color: #c0392b; }
+
+    /* Bottone aggiungi */
+    .btn-add {
+      background: none;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+      color: #1a1a18;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-add:hover { background: #f5f5f3; }
+
+    /* Metriche riepilogo */
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+      margin-top: 1.5rem;
+    }
+
+    .metric {
+      background: #f5f5f3;
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      text-align: center;
+    }
+
+    .metric-label {
+      font-size: 12px;
+      color: #6b6b67;
+      margin-bottom: 4px;
+    }
+
+    .metric-value {
+      font-size: 22px;
+      font-weight: 500;
+    }
+
+    .metric-value.blue { color: #185fa5; }
+
+    /* Legenda piani */
+    .legend {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid #ebebeb;
+    }
+
+    .legend-item {
+      font-size: 12px;
+      color: #6b6b67;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    @media (max-width: 600px) {
+      th:first-child, td:first-child { display: none; }
+      input[type="text"] { width: 120px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Calcola il tuo abbonamento LIME</h1>
+  <p class="subtitle">Aggiungi i tuoi punti vendita e inserisci il numero di erogatori per ciascuno.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Punto vendita</th>
+        <th style="text-align:center;">Erogatori</th>
+        <th style="text-align:center;">Piano</th>
+        <th style="text-align:right;">Totale annuo</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="sites-body"></tbody>
+  </table>
+
+  <button class="btn-add" onclick="addRow()">
+    + Aggiungi punto vendita
+  </button>
+
+  <div class="summary">
+    <div class="metric">
+      <div class="metric-label">Punti vendita</div>
+      <div class="metric-value" id="m-sites">0</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Libretti totali</div>
+      <div class="metric-value" id="m-books">0</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Totale annuo</div>
+      <div class="metric-value blue" id="m-total">€0</div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span class="legend-item"><span class="plan-badge b-base">BASE</span> 1–3 erogatori — €99/cad.</span>
+    <span class="legend-item"><span class="plan-badge b-plus">PLUS</span> 4–8 erogatori — €79/cad.</span>
+    <span class="legend-item"><span class="plan-badge b-ent">ENTERPRISE</span> 9+ erogatori — €59/cad.</span>
+  </div>
+</div>
+
+<script>
+  let rows = [];
+  let idCounter = 0;
+
+  const plans = [
+    { name: 'BASE',       min: 1, max: 3,        price: 99, cls: 'b-base' },
+    { name: 'PLUS',       min: 4, max: 8,        price: 79, cls: 'b-plus' },
+    { name: 'ENTERPRISE', min: 9, max: Infinity, price: 59, cls: 'b-ent'  }
+  ];
+
+  function getPlan(n) {
+    return plans.find(p => n >= p.min && n <= p.max) || plans[0];
+  }
+
+  function addRow(name = '', qty = 1) {
+    const id = idCounter++;
+    rows.push({ id, name, qty });
+    renderTable();
+    renderSummary();
+  }
+
+  function removeRow(id) {
+    rows = rows.filter(r => r.id !== id);
+    renderTable();
+    renderSummary();
+  }
+
+  function updateName(id, val) {
+    const r = rows.find(r => r.id === id);
+    if (r) r.name = val;
+    renderSummary();
+  }
+
+  function updateQty(id, val) {
+    const r = rows.find(r => r.id === id);
+    if (r) r.qty = Math.max(1, parseInt(val) || 1);
+    renderTable();
+    renderSummary();
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById('sites-body');
+    tbody.innerHTML = rows.map(r => {
+      const plan = getPlan(r.qty);
+      const total = plan.price * r.qty;
+      return `<tr>
+        <td><input type="text" value="${r.name}" placeholder="es. Distributore A1" oninput="updateName(${r.id}, this.value)" /></td>
+        <td style="text-align:center;"><input type="number" min="1" max="99" value="${r.qty}" onchange="updateQty(${r.id}, this.value)" /></td>
+        <td style="text-align:center;"><span class="plan-badge ${plan.cls}">${plan.name} — €${plan.price}/lib.</span></td>
+        <td style="text-align:right; font-weight:500;">€${total.toLocaleString('it-IT')}</td>
+        <td><button class="btn-remove" onclick="removeRow(${r.id})" title="Rimuovi">×</button></td>
+      </tr>`;
+    }).join('');
+  }
+
+  function renderSummary() {
+    const totalBooks = rows.reduce((s, r) => s + r.qty, 0);
+    const totalAmt   = rows.reduce((s, r) => s + getPlan(r.qty).price * r.qty, 0);
+    document.getElementById('m-sites').textContent = rows.length;
+    document.getElementById('m-books').textContent = totalBooks;
+    document.getElementById('m-total').textContent = '€' + totalAmt.toLocaleString('it-IT');
+  }
+
+  // Esempi di partenza
+  addRow('Distributore autostradale', 10);
+  addRow('Stazione urbana', 2);
+</script>
+
+</body>
+</html>
