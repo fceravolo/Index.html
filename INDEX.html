@@ -61,15 +61,7 @@
       vertical-align: middle;
     }
 
-    input[type="text"] {
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 5px 8px;
-      font-size: 14px;
-      width: 180px;
-      outline: none;
-      font-family: inherit;
-    }
+
 
     input[type="number"] {
       border: 1px solid #ddd;
@@ -179,7 +171,7 @@
     }
 
     @media (max-width: 600px) {
-      th:first-child, td:first-child { display: none; }
+      th:first-child, td:first-child { min-width: 40px; }
       input[type="text"] { width: 120px; }
     }
   </style>
@@ -193,7 +185,7 @@
   <table>
     <thead>
       <tr>
-        <th>Punto vendita</th>
+        <th>#</th>
         <th style="text-align:center;">Erogatori</th>
         <th style="text-align:center;">Piano</th>
         <th style="text-align:right;">Totale annuo</th>
@@ -275,7 +267,7 @@
       const plan = getPlan(r.qty);
       const total = plan.price * r.qty;
       return `<tr>
-        <td><input type="text" value="${r.name}" placeholder="es. Distributore A1" oninput="updateName(${r.id}, this.value)" /></td>
+        <td style="color:#6b6b67; font-size:13px; text-align:center;">${rows.indexOf(r) + 1}</td>
         <td style="text-align:center;"><input type="number" min="1" max="99" value="${r.qty}" onchange="updateQty(${r.id}, this.value)" /></td>
         <td style="text-align:center;"><span class="plan-badge ${plan.cls}">${plan.name} — €${plan.price}/lib.</span></td>
         <td style="text-align:right; font-weight:500;">€${total.toLocaleString('it-IT')}</td>
@@ -293,8 +285,7 @@
   }
 
   // Esempi di partenza
-  addRow('Distributore autostradale', 10);
-  addRow('Stazione urbana', 2);
+
 </script>
 
 </body>
