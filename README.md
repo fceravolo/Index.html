@@ -1,0 +1,1 @@
+Questo calcolatore aiuta i potenziali clienti di LiMe a calcolare il canone annuale per la gestione dei libretti metrologici digitali in base al numero di punti vendita e alla loro fascia di appartenenza
